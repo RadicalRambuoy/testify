@@ -15,16 +15,24 @@ int main() {
     bind(sock, (struct sockaddr*)&addr, sizeof(addr));
     printf("UDP server waiting...\n");
 
-    char buffer[1024] = {0};
-    socklen_t len = sizeof(client);
-    recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr*)&client, &len);
-    printf("Received: %s\n", buffer);
+    char buffer[1024];
+    while (1) {
+        socklen_t len = sizeof(client);
+        int n = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, (struct sockaddr*)&client, &len);
+        buffer[n] = '\0';
 
-    for (int i = 0; buffer[i]; i++)
-        buffer[i] = toupper(buffer[i]);
+        if (strcmp(buffer, "exit") == 0) {
+            printf("Client exited\n");
+            break;
+        }
+        printf("Received: %s\n", buffer);
 
-    sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr*)&client, len);
-    printf("Sent back: %s\n", buffer);
+        for (int i = 0; buffer[i]; i++)
+            buffer[i] = toupper(buffer[i]);
+
+        sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr*)&client, len);
+        printf("Sent back: %s\n", buffer);
+    }
 
     close(sock);
     return 0;
