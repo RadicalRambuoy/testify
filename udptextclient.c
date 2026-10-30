@@ -11,16 +11,21 @@ int main() {
     server.sin_port = htons(5000);
     server.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    char msg[1024];
-    printf("Enter a string: ");
-    fgets(msg, sizeof(msg), stdin);
-    msg[strcspn(msg, "\n")] = '\0';
+    char msg[1024], buffer[1024];
+    while (1) {
+        printf("Enter a string (exit to quit): ");
+        fgets(msg, sizeof(msg), stdin);
+        msg[strcspn(msg, "\n")] = '\0';
 
-    sendto(sock, msg, strlen(msg), 0, (struct sockaddr*)&server, sizeof(server));
+        sendto(sock, msg, strlen(msg), 0, (struct sockaddr*)&server, sizeof(server));
 
-    char buffer[1024] = {0};
-    recvfrom(sock, buffer, sizeof(buffer), 0, NULL, NULL);
-    printf("Converted string: %s\n", buffer);
+        if (strcmp(msg, "exit") == 0)
+            break;
+
+        int n = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, NULL, NULL);
+        buffer[n] = '\0';
+        printf("Converted string: %s\n", buffer);
+    }
 
     close(sock);
     return 0;
