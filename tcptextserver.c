@@ -20,9 +20,21 @@ int main() {
     int client = accept(server, NULL, NULL);
     printf("Client connected\n");
 
-    char buffer[1024] = {0};
-    recv(client, buffer, sizeof(buffer), 0);
-    printf("Message received: %s\n", buffer);
+    char buffer[1024];
+    while (1) {
+        int n = recv(client, buffer, sizeof(buffer) - 1, 0);
+        if (n <= 0) {
+            printf("Client disconnected\n");
+            break;
+        }
+        buffer[n] = '\0';
+
+        if (strcmp(buffer, "exit") == 0) {
+            printf("Client exited\n");
+            break;
+        }
+        printf("Message received: %s\n", buffer);
+    }
 
     close(client);
     close(server);
