@@ -14,12 +14,17 @@ int main() {
     connect(sock, (struct sockaddr*)&server, sizeof(server));
 
     char msg[1024];
-    printf("Enter message: ");
-    fgets(msg, sizeof(msg), stdin);
-    msg[strcspn(msg, "\n")] = '\0';
+    while (1) {
+        printf("Enter message (exit to quit): ");
+        fgets(msg, sizeof(msg), stdin);
+        msg[strcspn(msg, "\n")] = '\0';
 
-    send(sock, msg, strlen(msg), 0);
-    printf("Message sent\n");
+        send(sock, msg, strlen(msg), 0);
+
+        if (strcmp(msg, "exit") == 0)
+            break;
+        printf("Message sent\n");
+    }
 
     close(sock);
     return 0;
